@@ -31,7 +31,8 @@ UserSchema = mongo.Schema({
 		type: String,
 		default: ''
 	}, birthday: {
-		type: Date
+		type: String,
+		default:''
 	}, gender: {				// 1: nam, 0 nu
 		type: Number,
 		default: 1

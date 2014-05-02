@@ -11,7 +11,7 @@ module.exports.controller = function(app){
     *   Add Follow
     *       + input:
     *           - header: userId, auth_token
-    *           - param: userId1, userId2
+    *           - param: userId
     *       + output:
     *           - new follow
     * */
@@ -23,34 +23,34 @@ module.exports.controller = function(app){
            if(!err){
                if(data){
                    follow.findOne({
-                      userA_follow: req.param('userId1'),
-                       userB_follow: req.param('userId2')
+                      userA_follow: req.header('userId'),
+                       userB_follow: req.param('userId')
                    }, function(err, data){
                        if(!err){
                            if(data){
                                res.json({status_code: 204, message:'Da quan tam nguoi dung nay', data:{}});
                            }else{
                                var ob = new Follow();
-                               ob.userA_follow = req.param('userId1');
-                               ob.userB_follow = req.param('userId2');
+                               ob.userA_follow = req.header('userId');
+                               ob.userB_follow = req.param('userId');
                                ob.save(function(err){
                                    if(!err){
-                                       res.json({status_code: 200, message: '', data: ob});
+                                       res.json({status_code: 200, message: '', data: 1});
                                    } else{
-                                       res.json({status_code: 204, message: 'Them quan tam that bai', data:{}});
+                                       res.json({status_code: 204, message: 'Them quan tam that bai', data:0});
                                    }
                                });
                            }
                        }else{
-                           res.json({status_code: 404, message: 'Sai param', data:{}});
+                           res.json({status_code: 404, message: 'Sai param', data: 0 });
                        }
                    });
 
                }else{
-                   res.json({status_code: 404, message: 'Sai auth_token', data:{}});
+                   res.json({status_code: 404, message: 'Sai auth_token', data:0});
                }
            } else{
-               res.json({status_code: 404, message: 'Sai userId', data: {}});
+               res.json({status_code: 404, message: 'Sai userId', data: 0});
            }
         });
     });
@@ -59,7 +59,7 @@ module.exports.controller = function(app){
     *   Get list following
     *       - input:
     *           + header: userId, auth_token
-    *           + params: userId1
+    *           + params: 
     *       - Output:
     *           + list following
     *
@@ -73,7 +73,7 @@ module.exports.controller = function(app){
            if(!err){
                if(data){
                    follow.find({
-                       userA_follow: req.param('userId1')
+                       userA_follow: req.header('userId')
                    }, function(err, data){
                        if(!err){
                            if(data){
@@ -95,10 +95,49 @@ module.exports.controller = function(app){
     });
 
     /*  -----------------------------------------------------------------
+     *   Check following
+     *       - input:
+     *           + header: userId, auth_token
+     *           + param: userId2
+     *       - Output:   check following
+     *  -----------------------------------------------------------------
+     * */
+    app.get('/api/follows/check_follow.json', function(req, res){
+        user.findOne({
+            _id: req.header('userId'),
+            auth_token: req.header('auth_token')
+        }, function(err, data){
+            if(!err){
+                if(data) {
+                    follow.findOne({
+                        userA_follow: req.header('userId'),
+                        userB_follow: req.param('userId')
+                    }, function(err, data) {
+                        if(!err){
+                            if(data){
+                                res.json({status_code: 200, message: '', data: 1});
+                            }else{
+                                res.json({status_code: 204, message: 'Chua quan tam nguoi dung nay', data: 0});
+                            }
+                        }else{
+                            res.json({status_code: 404, message: 'Sai params', data: 0});
+                        }
+
+                    });
+                }else{
+                    res.json({status_code: 404, message: 'auth_token is incorrect', data:0});
+                }
+            }else{
+                res.json({status_code: 404, message: 'Sai userId', data:0});
+            }
+        });
+    });
+
+ /*  -----------------------------------------------------------------
      *   Count following
      *       - input:
      *           + header: userId, auth_token
-     *           + param: userId1
+     *           + param: 
      *       - Output:   count following
      *  -----------------------------------------------------------------
      * */
@@ -110,13 +149,13 @@ module.exports.controller = function(app){
             if(!err){
                 if(data) {
                     follow.count({
-                        userA_follow: req.param('userId1')
+                        userA_follow: req.header('userId')
                     }, function(err, data) {
                         if(!err){
                             if(data){
                                 res.json({status_code: 200, message: '', data: data});
                             }else{
-                                res.json({status_code: 204, message: 'Count following failure', data: 0});
+                                res.json({status_code: 204, message: 'Chua quan tam nguoi dung nao', data: 0});
                             }
                         }else{
                             res.json({status_code: 404, message: 'Sai params', data: 0});
@@ -136,7 +175,7 @@ module.exports.controller = function(app){
      *   Remove follow
      *       - input:
      *           + header: userId, auth_token
-     *           + param: followId
+     *           + param: userId2
      *       - Output: 1: success, 0: failure
      *  -----------------------------------------------------------------
      * */
@@ -148,11 +187,12 @@ module.exports.controller = function(app){
             if(!err){
                 if(data) {
                     follow.findOne({
-                        _id: req.param('followId')
+                        userA_follow: req.header('userId'),
+                        userB_follow: req.param('userId2')
                     }).remove(function(err, data){
                         if(!err){
                             if(data){
-                                res.json({status_code: 200, message: '', data: data});
+                                res.json({status_code: 200, message: '', data: 1});
                             }else{
                                 res.json({status_code: 204, message: 'Xoa quan tam that bai', data: 0});
                             }

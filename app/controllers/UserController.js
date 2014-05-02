@@ -111,16 +111,16 @@ app.put('/api/users/logout.json', function(req, res) {
                     _user.online = false;
                     _user.save(function (error) {
                         if (!error) {
-                            res.json({status_code: 200, message: '', data: _user});
+                            res.json({status_code: 200, message: '', data: 1});
                         } else {
-                            res.json({status_code: 404, message: 'Save user not successful', data: {}});
+                            res.json({status_code: 204, message: 'Logout is failure', data: 0});
                         }
                     });
                 } else{
-                    res.json({status_code: 404, message: 'Save user not successful', data: {}});
+                    res.json({status_code: 404, message: 'Sai auth_token', data: 0});
                 }
             } else {
-                res.json({status_code: 404, message: 'Sai params', data: {}});
+                res.json({status_code: 404, message: 'Sai userId', data: 0});
             }
         });
     });
@@ -357,18 +357,18 @@ app.put('/api/users/logout.json', function(req, res) {
                     }, req.body, function(err, data){
                         if(!err) {
                             if (data) {
-                                res.json({status_code: 200, message: '', data: data});
+                                res.json({status_code: 200, message: '', data: 1});
                             } else
-                                res.json({status_code: 204, message: 'user is not exited', data: {}});
+                                res.json({status_code: 204, message: 'user is not exited', data: 0});
                         }else{
-                            res.json({status_code: 404, message: 'Sai param', data:{}});
+                            res.json({status_code: 404, message: 'Sai param', data:0});
                         }
                     });
                 }else{
-                    res.json({status_code: 404, message: 'auth_token is incorrect', data:{}});
+                    res.json({status_code: 404, message: 'auth_token is incorrect', data:0});
                 }
             }else{
-                res.json({status_code: 404, message: 'Sai userId', data:{}});
+                res.json({status_code: 404, message: 'Sai userId', data:0});
             }
         });
     });
@@ -518,5 +518,47 @@ app.put('/api/users/logout.json', function(req, res) {
             }
         });
     });
-    
+
+   /*  -----------------------------------------------------------------
+     *   Get location of all user
+     *       - Input:
+     *           +  header:  userId, auth_token
+     *       - Output:
+     *           data of all User
+     *  -----------------------------------------------------------------
+     * */
+
+     app.get('/api/users/get_location_of_all_user.json', function(req, res){
+        user.findOne({
+            _id: req.header('userId'),
+            auth_token: req.header('auth_token')
+        }, function(err, data){
+            if(!err){
+                if(data) {
+                    user.find({}, function (err, data) {
+                        if (data) {
+
+                            var response = new Array()
+                            for(var i=0; i< data.length; i++) {
+                                var result = {_id: data[i]._id, username: data[i].username, avatar: data[i].avatar, 
+                                    status: data[i].status, gender: data[i].gender, latitude: data[i].latitude, longitude: data[i].longitude};
+                                response.push(result);
+                            }
+
+                            res.json({status_code: 200, message: '', data: response});
+                        } else if (!data1) {
+                            res.json({status_code: 404, message: 'Have not user', data: {}});
+                        } else {
+                            res.json({status_code: 404, message: err, data: {}});
+                        }
+                    });
+                }else{
+                    res.json({status_code: 404, message: 'auth_token is incorrect', data:{}});
+                }
+            }else{
+                res.json({status_code: 404, message: err, data:{}});
+            }
+        });
+    });
+  
 };

@@ -126,6 +126,38 @@ module.exports.controller = function(app){
         });
 	});
 
+// Kiem tra yeu cau ket
+    app.get('/api/friends/check_request_friend.json', function(req, res){
+        user.findOne({
+            _id: req.header('userId'),
+            auth_token: req.header('auth_token')
+        }, function(err, data){
+            if(!err){
+                if(data){
+                    friend.findOne({
+                        userA_friend: req.header('userId'),
+                        userB_friend: req.param('userId2')
+                    }, function(err, data){
+                        if(!err){
+                            if(data) {
+                                res.json({status_code: 200, message: '', data: 1});
+                            }else{
+                                res.json({status_code: 204, message: 'Hai nguoi chua la ban', data: 0});
+                            }
+                        }else{
+                            res.json({status_code: 404, message:'params khong chinh xac', data:0});
+                        }
+                    });
+                }else{
+                    res.json({status_code: 404, message: 'Sai auth_token', data:0});
+                }
+            }else{
+                res.json({status_code: 404, message: 'Sai userId', data:0});
+            }
+        });
+    });
+
+
 	// Dem so ban be cua nguoi dung
 	app.get('/api/friends/count_friend.json', function(req, res){
         user.findOne({

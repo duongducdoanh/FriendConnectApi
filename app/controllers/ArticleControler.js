@@ -71,16 +71,17 @@ module.exports.controller = function(app){
             if(!err){
                 if(data) {
                     follow.find({
-                        userA_follow: req.param('userId')
-                    }, function(err, data){
+                        userA_follow: req.header('userId'),
+                        userB_follow: req.param('userId2')
+                    }, function(err, dataFollow){                    	
                         if(!err){
-                            if(data){
-                                article.findOne({
-                                    poster: data.userB_follow
-                                }, function(err, data){
+                            if(dataFollow){  
+                                article.find({
+                                    poster: req.param('userId2')
+                                }, function(err, dataArticle){
                                    if(!err){
-                                       if(data){
-                                           res.json({status_code: 200, message:'', data: data});
+                                       if(dataArticle){
+                                           res.json({status_code: 200, message:'', data: dataArticle});
                                        }else{
                                            res.json({status_code: 204, message: 'Lay bai viet cua nhung nguoi dang quan tam that bai', data: {}});
                                        }
